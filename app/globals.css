@@ -1,0 +1,348 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Cream ─────────────────────────── */
+  --color-cream-50:  #FAF6EE;
+  --color-cream-100: #F5EFE6;
+  --color-cream-200: #EDE4D3;
+  --color-cream-300: #D9CDB5;
+
+  /* ── Terracotta ─────────────────────── */
+  --color-terracotta-400: #D67358;
+  --color-terracotta-500: #C8553D;
+  --color-terracotta-600: #A6422F;
+  --color-terracotta-700: #7A2E20;
+
+  /* ── Forest ─────────────────────────── */
+  --color-forest-400: #4A5D49;
+  --color-forest-600: #2D3D2C;
+  --color-forest-800: #1F2E1E;
+  --color-forest-900: #131D12;
+
+  /* ── Gold ───────────────────────────── */
+  --color-gold-300: #D4BB7D;
+  --color-gold-500: #B89B5E;
+  --color-gold-600: #9A8049;
+
+  /* ── Semantic ───────────────────────── */
+  --color-ink:   #1A1612;
+  --color-paper: #F5EFE6;
+
+  /* ── Fonts ──────────────────────────── */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans:    var(--font-inter), system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains), monospace;
+}
+
+/* Raw CSS vars for inline styles and non-Tailwind usage */
+:root {
+  --cream-50:          #FAF6EE;
+  --cream-100:         #F5EFE6;
+  --cream-200:         #EDE4D3;
+  --cream-300:         #D9CDB5;
+  --terracotta-400:    #D67358;
+  --terracotta-500:    #C8553D;
+  --terracotta-600:    #A6422F;
+  --terracotta-700:    #7A2E20;
+  --forest-400:        #4A5D49;
+  --forest-600:        #2D3D2C;
+  --forest-800:        #1F2E1E;
+  --forest-900:        #131D12;
+  --gold-300:          #D4BB7D;
+  --gold-500:          #B89B5E;
+  --gold-600:          #9A8049;
+  --ink:               #1A1612;
+  --paper:             #F5EFE6;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+}
+
+body {
+  background-color: var(--cream-100);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Hide default cursor — canvas cursor takes over on non-touch */
+@media (pointer: fine) {
+  * { cursor: none !important; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--cream-200); }
+::-webkit-scrollbar-thumb { background: var(--terracotta-500); border-radius: 2px; }
+
+/* Selection */
+::selection {
+  background: var(--terracotta-500);
+  color: var(--cream-50);
+}
+
+/* Projects grid — collapse to 1-col on mobile, 2-col on tablet */
+@media (max-width: 767px) {
+  #projects .grid > * {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  #projects .grid > * {
+    grid-column: span 6 !important;
+    grid-row: auto !important;
+  }
+}
+
+/* ── Shiny Button ─────────────────────────────────────────────────────── */
+
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --gradient-angle-offset {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --gradient-percent {
+  syntax: "<percentage>";
+  initial-value: 5%;
+  inherits: false;
+}
+
+@property --gradient-shine {
+  syntax: "<color>";
+  initial-value: white;
+  inherits: false;
+}
+
+.shiny-cta {
+  --shiny-cta-bg:               #131D12;
+  --shiny-cta-bg-subtle:        #1F2E1E;
+  --shiny-cta-fg:               #FAF6EE;
+  --shiny-cta-highlight:        #C8553D;
+  --shiny-cta-highlight-subtle: #D67358;
+  --animation:    gradient-angle linear infinite;
+  --duration:     3s;
+  --shadow-size:  2px;
+  --transition:   800ms cubic-bezier(0.25, 1, 0.5, 1);
+
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  outline-offset: 4px;
+  padding: 0.875rem 2rem;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--shiny-cta-fg);
+  background:
+    linear-gradient(var(--shiny-cta-bg), var(--shiny-cta-bg)) padding-box,
+    conic-gradient(
+      from calc(var(--gradient-angle) - var(--gradient-angle-offset)),
+      transparent,
+      var(--shiny-cta-highlight) var(--gradient-percent),
+      var(--gradient-shine) calc(var(--gradient-percent) * 2),
+      var(--shiny-cta-highlight) calc(var(--gradient-percent) * 3),
+      transparent calc(var(--gradient-percent) * 4)
+    ) border-box;
+  box-shadow: inset 0 0 0 1px var(--shiny-cta-bg-subtle);
+  transition: var(--transition);
+  transition-property: --gradient-angle-offset, --gradient-percent, --gradient-shine;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shiny-cta::before,
+.shiny-cta::after,
+.shiny-cta span::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+}
+
+.shiny-cta:active {
+  translate: 0 1px;
+}
+
+.shiny-cta::before {
+  --size:     calc(100% - var(--shadow-size) * 3);
+  --position: 2px;
+  --space:    calc(var(--position) * 2);
+  width:  var(--size);
+  height: var(--size);
+  background: radial-gradient(
+    circle at var(--position) var(--position),
+    white calc(var(--position) / 4),
+    transparent 0
+  ) padding-box;
+  background-size: var(--space) var(--space);
+  background-repeat: space;
+  mask-image: conic-gradient(
+    from calc(var(--gradient-angle) + 45deg),
+    black,
+    transparent 10% 90%,
+    black
+  );
+  border-radius: inherit;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+.shiny-cta::after {
+  --animation: shimmer-cta linear infinite;
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(
+    -50deg,
+    transparent,
+    var(--shiny-cta-highlight),
+    transparent
+  );
+  mask-image: radial-gradient(circle at bottom, transparent 40%, black);
+  opacity: 0.6;
+}
+
+.shiny-cta span {
+  z-index: 1;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shiny-cta span::before {
+  --size: calc(100% + 1rem);
+  width:  var(--size);
+  height: var(--size);
+  box-shadow: inset 0 -1ex 2rem 4px var(--shiny-cta-highlight);
+  opacity: 0;
+  transition: opacity var(--transition);
+  animation: calc(var(--duration) * 1.5) breathe-cta linear infinite;
+}
+
+.shiny-cta,
+.shiny-cta::before,
+.shiny-cta::after {
+  animation: var(--animation) var(--duration),
+    var(--animation) calc(var(--duration) / 0.4) reverse paused;
+  animation-composition: add;
+}
+
+.shiny-cta:is(:hover, :focus-visible) {
+  --gradient-percent:       20%;
+  --gradient-angle-offset:  95deg;
+  --gradient-shine:         var(--shiny-cta-highlight-subtle);
+}
+
+.shiny-cta:is(:hover, :focus-visible),
+.shiny-cta:is(:hover, :focus-visible)::before,
+.shiny-cta:is(:hover, :focus-visible)::after {
+  animation-play-state: running;
+}
+
+.shiny-cta:is(:hover, :focus-visible) span::before {
+  opacity: 1;
+}
+
+/* Ghost variant — transparent bg, for secondary buttons on dark sections */
+.shiny-ghost {
+  --shiny-cta-bg:        transparent;
+  --shiny-cta-bg-subtle: rgba(249, 246, 238, 0.07);
+  --shiny-cta-fg:        #D9CDB5;
+}
+
+/* Small variant — compact contexts like the footer subscribe */
+.shiny-sm {
+  padding:   0.6rem 1.375rem;
+  font-size: 0.8125rem;
+}
+
+@keyframes gradient-angle {
+  to { --gradient-angle: 360deg; }
+}
+
+@keyframes shimmer-cta {
+  to { rotate: 360deg; }
+}
+
+@keyframes breathe-cta {
+  from, to { scale: 1; }
+  50%       { scale: 1.2; }
+}
+
+/* ── Shader Hero animations ───────────────────────────────────────────── */
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@utility animate-fade-in-down {
+  animation: fade-in-down 0.8s ease-out forwards;
+}
+
+@utility animate-fade-in-up {
+  opacity: 0;
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+@utility animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@utility animation-delay-200 { animation-delay: 0.2s; }
+@utility animation-delay-400 { animation-delay: 0.4s; }
+@utility animation-delay-600 { animation-delay: 0.6s; }
+@utility animation-delay-800 { animation-delay: 0.8s; }
+
+/* Grain overlay — applied via the .grain class */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
