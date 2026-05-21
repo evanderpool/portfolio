@@ -42,13 +42,12 @@ export default function MobileTimeline() {
           gap: 'clamp(40px, 8vw, 64px)',
         }}
       >
-        {milestones.map((m) => (
+        {milestones.map((m, i) => (
           <motion.article
             key={m.year}
             initial={reduced ? false : { opacity: 0, y: 40 }}
-            whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.8, ease: EASE_OUT }}
+            animate={reduced ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE_OUT, delay: i * 0.12 }}
             style={{
               display: 'flex',
               flexDirection: 'column',

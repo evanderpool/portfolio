@@ -133,7 +133,15 @@ export default function AnimatedNav() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4"
+      className={cn(
+        'fixed top-0 z-50 flex pt-4',
+        // Touch + collapsed → small circle anchored top-right (standard mobile position)
+        // Touch + tapped open → pill centred so it has room to expand
+        // Desktop → always centred
+        isTouch && isCollapsed && !tappedOpen
+          ? 'right-4 left-auto'
+          : 'left-0 right-0 justify-center'
+      )}
       style={{ pointerEvents: 'none' }}
     >
       <motion.div

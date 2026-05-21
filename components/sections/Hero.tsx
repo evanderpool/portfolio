@@ -140,7 +140,7 @@ export default function Hero() {
         </div>
 
         {/* Bottom row — meta + CTA */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-8 pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 pb-8 sm:pb-4">
           {/* Descriptor */}
           <div ref={metaRef} style={{ opacity: 0 }}>
             <p
@@ -174,10 +174,10 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — desktop only (mobile layout has no room and isMobile hides it) */}
       <div
         ref={scrollRef}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 hidden sm:flex"
         style={{ opacity: 0 }}
         aria-hidden
       >
