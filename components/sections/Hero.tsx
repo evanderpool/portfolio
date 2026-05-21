@@ -37,6 +37,7 @@ export default function Hero() {
 
   useEffect(() => {
     if (getPrefersReducedMotion()) return
+    if (!linesRef.current) return   // guard: refs not ready (strict-mode remount edge case)
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })

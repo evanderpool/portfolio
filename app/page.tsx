@@ -6,6 +6,7 @@ import ProjectsSection from '@/components/projects/ProjectsSection'
 import TimelineSection from '@/components/timeline/TimelineSection'
 import JournalTeaser   from '@/components/JournalTeaser'
 import Contact         from '@/components/sections/Contact'
+import ErrorBoundary   from '@/components/ErrorBoundary'
 import { getPosts }    from '@/lib/journal'
 
 // Revalidate every 60s so newly approved posts appear on the homepage
@@ -18,14 +19,15 @@ export default async function Home() {
 
   return (
     <main>
-      <AnimatedNav />
-      <Hero />
-      <ManifestoBlock />
-      <About />
-      <ProjectsSection limit={6} showViewAll />
-      <TimelineSection />
-      <JournalTeaser posts={latestThree} />
-      <Contact />
+      {/* Each section is isolated — one crash cannot take down the rest */}
+      <ErrorBoundary><AnimatedNav /></ErrorBoundary>
+      <ErrorBoundary><Hero /></ErrorBoundary>
+      <ErrorBoundary><ManifestoBlock /></ErrorBoundary>
+      <ErrorBoundary><About /></ErrorBoundary>
+      <ErrorBoundary><ProjectsSection limit={6} showViewAll /></ErrorBoundary>
+      <ErrorBoundary><TimelineSection /></ErrorBoundary>
+      <ErrorBoundary><JournalTeaser posts={latestThree} /></ErrorBoundary>
+      <ErrorBoundary><Contact /></ErrorBoundary>
     </main>
   )
 }

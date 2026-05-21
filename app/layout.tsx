@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import Cursor        from '@/components/Cursor'
@@ -26,6 +26,12 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains',
   display: 'swap',
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',   // respect the Dynamic Island / notch safe area on iPhone 14 Pro Max
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://erickvanderpool.com'),
