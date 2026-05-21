@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Nav           from '@/components/Nav'
+import AnimatedNav   from '@/components/ui/navigation-menu'
 import AboutSection  from '@/components/about/AboutSection'
 import JournalTeaser from '@/components/JournalTeaser'
 import { getPosts }  from '@/lib/journal'
@@ -40,7 +40,7 @@ export default async function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
       />
       <main>
-        <Nav />
+        <AnimatedNav />
         <AboutSection />
         <JournalTeaser posts={latestThree} />
       </main>

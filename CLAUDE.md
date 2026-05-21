@@ -30,8 +30,7 @@
 | Claude API generation (topic rotation, voice prompt, caching) | ✅ Done | 2026-05-20 |
 | GitHub Actions daily cron (/api/generate) | ✅ Done | 2026-05-20 |
 | Admin dashboard (separate app, portfolio-admin/) | ✅ Done | 2026-05-20 |
-| Nav "Work" → #projects anchor | ✅ Done | 2026-05-20 |
-| Project data (7 real projects) | ✅ Done | 2026-05-20 |
+| Project data (7 real projects + cover images) | ✅ Done | 2026-05-20 |
 | **AI Blog system — full audit + sync fixes** | ✅ Done | 2026-05-21 |
 | **JournalTeaser → live Supabase data** | ✅ Done | 2026-05-21 |
 | **Admin generation history page** | ✅ Done | 2026-05-21 |
@@ -48,17 +47,19 @@
 | **FunnelCard client component (fixes Server Component event handler error)** | ✅ Done | 2026-05-21 |
 | **Awareness token limit fix (4k → 6k, was silently failing)** | ✅ Done | 2026-05-21 |
 | **DB migrations: image_prompt, video_prompt, image_urls, generation_phase cols** | ✅ Done | 2026-05-21 |
-| **Version control: git init portfolio-admin, full commits on both repos** | ✅ Done | 2026-05-21 |
-| **Mobile rendering — full fix pass (7 commits)** | ✅ Done | 2026-05-21 |
-| **GitHub remotes — create repos + push** | ⏸️ Todo — user creates repos on github.com | — |
-| **Deploy portfolio to Vercel** | ⏸️ Todo | — |
-| **Deploy portfolio-admin to Vercel (private)** | ⏸️ Todo | — |
-| **Mobile polish — continued refinement** | ⏸️ In progress — see §15 | — |
+| **Version control: git init + full commits on both repos** | ✅ Done | 2026-05-21 |
+| **Mobile rendering — full fix pass + polish** | ✅ Done | 2026-05-21 |
+| **GitHub remotes — both repos connected + pushed** | ✅ Done | 2026-05-21 |
+| **Deploy portfolio → Vercel (live)** | ✅ Done | 2026-05-21 |
+| **Deploy portfolio-admin → Vercel (live, auth-gated)** | ✅ Done | 2026-05-21 |
+| **Codebase audit — stale files deleted, Nav updated on sub-pages** | ✅ Done | 2026-05-21 |
+| **GitHub Actions secrets** | ⏸️ On hold — do after confirming Vercel URLs are stable | — |
+| **Mobile polish — sub-pages (About, Work, Contact routes)** | ⏸️ In progress | — |
 | **Social content calendar — Phase 4** | ⏸️ Todo | — |
 | **Social API auto-posting (Instagram/Facebook/TikTok/YouTube)** | ⏸️ Todo — needs platform API setup | — |
-| Social links (GitHub, LinkedIn, Twitter, Calendly) | ✅ Done (GitHub + LinkedIn live) | 2026-05-21 |
-| Fraunces typeface JSON for GlassMark | ⏸️ Todo | — |
+| Social links (Twitter, Calendly) | ⏸️ Todo — placeholders in Contact.tsx + Footer.tsx | — |
 | OG image | ⏸️ Todo | — |
+| Vercel Analytics | ⏸️ Todo | — |
 
 ---
 
@@ -84,18 +85,33 @@
 
 ---
 
+## 1b. Live URLs
+
+| App | URL |
+|-----|-----|
+| **Portfolio** | https://portfolio-jade-zeta-80.vercel.app |
+| **Admin** | https://portfolio-admin-a1eey45ch-erickvanderpool-7130s-projects.vercel.app |
+| **GitHub — portfolio** | https://github.com/evanderpool/portfolio (public) |
+| **GitHub — admin** | https://github.com/evanderpool/portfolio-admin- (private) |
+
+---
+
 ## 2. File Structure (actual)
 
 ```
 portfolio/
 ├── app/
-│   ├── globals.css          ← Tailwind v4 @theme tokens + grain + mobile grid overrides
+│   ├── globals.css          ← Tailwind v4 @theme tokens + grain + mobile overrides
 │   ├── layout.tsx           ← Fonts (Fraunces/Inter/JetBrains), Cursor, Providers, metadata
 │   ├── page.tsx             ★ ASYNC server component — fetches 3 latest posts, revalidate=60
 │   │                           AnimatedNav + Hero + ManifestoBlock + About + Projects +
 │   │                           Timeline + JournalTeaser(posts) + Contact
 │   ├── about/
-│   │   └── page.tsx         ★ ASYNC — fetches 3 latest posts, revalidate=60
+│   │   └── page.tsx         ★ ASYNC — AnimatedNav + AboutSection + JournalTeaser
+│   ├── work/
+│   │   └── page.tsx         ← AnimatedNav + WorksHero + ProjectsSection
+│   ├── contact/
+│   │   └── page.tsx         ← AnimatedNav + Contact
 │   ├── journal/
 │   │   ├── page.tsx         ← All published posts, revalidate=60
 │   │   └── [slug]/page.tsx  ← Single post page, revalidate=60
@@ -106,51 +122,52 @@ portfolio/
 │   └── robots.ts
 ├── components/
 │   ├── Cursor.tsx
-│   ├── Nav.tsx              ← ⚠️ OLD — superseded by ui/navigation-menu.tsx. NOT imported anywhere.
+│   ├── ErrorBoundary.tsx    ← Class component — wraps layout shell + each section in page.tsx
 │   ├── Providers.tsx
 │   ├── ManifestoBlock.tsx
-│   ├── JournalTeaser.tsx    ★ UPDATED — accepts posts: JournalPost[] prop (no static import)
+│   ├── JournalTeaser.tsx    ★ accepts posts: JournalPost[] prop (no static import)
 │   ├── Footer.tsx
 │   ├── SectionWrapper.tsx
 │   ├── about/               ← AboutSection, BlobBackground, AboutText, SkillsList, PortraitFrame, GlassMark
 │   ├── journal/
-│   │   ├── data/posts.ts    ← ⚠️ STALE — static seed data, NOT imported anywhere. Safe to delete.
 │   │   ├── JournalPostList.tsx ← Used on /journal page
 │   │   └── PostBody.tsx     ← react-markdown renderer with design-token styles
 │   ├── timeline/            ← TimelineSection, TimelineCanvas, TimelineScene, SplineCamera,
 │   │                           Marker, MilestoneCaption, YearGhost, MobileTimeline, data/milestones.ts
 │   ├── projects/            ← ProjectsSection, ProjectGrid, ProjectCard, ProjectCanvas,
-│   │                           DistortionPlane, ProjectsHeader, HoverContext, useMagneticTilt
-│   │                           data/projects.ts ⚠️ PLACEHOLDER — real data pending from Erick
-│   ├── sections/            ← Hero, Skills, SkillsScene, Contact, ContactScene
-│   │                           (HeroScene/About/AboutScene/Projects/ProjectsScene = OLD, kept for ref)
+│   │                           DistortionPlane, ProjectsHeader, WorksHero, HoverContext, useMagneticTilt
+│   │                           data/projects.ts ← 7 real projects with cover images
+│   ├── sections/            ← Hero, Skills, SkillsScene, Contact, ContactScene, ContactModal
+│   │                           About.tsx + AboutScene.tsx (about page section)
+│   │                           Projects.tsx + ProjectsScene.tsx (projects scroll section)
 │   ├── transitions/
 │   │   ├── TransitionLink.tsx
 │   │   └── PageCurtain.tsx
 │   └── ui/
-│       ├── navigation-menu.tsx  ← ★ Animated pill nav (active)
+│       ├── navigation-menu.tsx  ← ★ AnimatedNav — pill nav used on ALL pages
 │       ├── shader-background.tsx
 │       ├── wireframe-dotted-globe.tsx
-│       ├── animated-shader-hero.tsx ← pre-existing (1 unrelated TS error — ignore)
+│       ├── animated-shader-hero.tsx ← used by WorksHero (1 pre-existing TS error — ignore)
 │       ├── shiny-button.tsx
 │       ├── button.tsx, sheet.tsx, input.tsx, label.tsx ← shadcn helpers
 ├── lib/
 │   ├── utils.ts             ← cn() helper
 │   ├── motion.ts            ← EASE_OUT, DUR_*, STAGGER, getPrefersReducedMotion()
 │   ├── lenis.ts             ← useLenis() + GSAP ticker + lagSmoothing(500,33)
-│   ├── supabase.ts          ← ⚠️ STALE — public anon client, NOT imported anywhere. Safe to delete.
 │   ├── supabase-server.ts   ← supabaseAdmin (service-role key) — used by all server reads/writes
-│   ├── journal.ts           ★ UPDATED — uses supabaseAdmin (not anon client). getPosts() + getPostBySlug()
-│   └── generate-post.ts     ★ UPDATED — 36-topic bank, Supabase dedup via topic_prompt, saves topic_prompt
+│   ├── journal.ts           ← uses supabaseAdmin. getPosts() + getPostBySlug()
+│   └── generate-post.ts     ← 36-topic bank, Supabase dedup via topic_prompt, saves topic_prompt
 ├── store/
 │   └── transition.ts        ← Zustand: useTransition() — start(href), isTransitioning
 ├── supabase/
-│   └── schema.sql           ★ UPDATED — added topic_prompt TEXT column to posts table
+│   └── schema.sql           ← posts table + topic_prompt column
 ├── public/
-│   ├── fonts/fraunces.json  ← ⚠️ PLACEHOLDER (helvetiker)
-│   └── projects/            ← ⚠️ EMPTY — cover images needed
+│   ├── fonts/fraunces.json  ← ✅ Real Fraunces variable font JSON (used by GlassMark)
+│   └── projects/            ← ✅ All 7 cover images: artmgmt, research-agent, rag-builder,
+│                               portfolio-3d, envera-dataops, covid-analysis, nashville-sql
 ├── .github/workflows/
-│   └── daily-post.yml       ← GitHub Actions cron (9AM UTC) → POST /api/generate
+│   ├── daily-post.yml       ← GitHub Actions cron (9AM UTC) → POST /api/generate
+│   └── social-phases.yml    ← GitHub Actions cron (10AM UTC) → GET /api/cron/social-phases
 ├── CLAUDE.md
 ├── package.json
 ├── tsconfig.json
@@ -168,39 +185,33 @@ portfolio-admin/
 │   ├── GenerateButton.tsx   ← 'use client' — calls /api/trigger-generate
 │   ├── history/
 │   │   ├── page.tsx         ← All posts ever generated: stats, category breakdown, topic archive
-│   │   └── TriggerSocialButton.tsx ← ★ 'use client' — ⟳ Social button for published posts
+│   │   └── TriggerSocialButton.tsx ← 'use client' — ⟳ Social re-trigger button
 │   ├── login/page.tsx
 │   ├── post/[slug]/page.tsx ← Preview any post
 │   ├── social/
-│   │   ├── page.tsx         ★ Server — fetches pending posts + funnel metadata, exports SocialPost + FunnelMeta types
-│   │   ├── SocialHub.tsx    ★ Client — funnel accordion (FunnelCard → StageSection → SocialPostCard)
-│   │   │                       Platform filter pills per funnel; Content/Preview tabs per post card
-│   │   ├── PlatformPreview.tsx ★ Client — phone frame mockups (TikTok 9:16, Instagram 4:5,
-│   │   │                       Instagram Story/Reel 9:16, Facebook 16:9, YouTube Community 16:9,
-│   │   │                       YouTube Shorts 9:16). Carousel swipe (← →). Per-slide image prompts.
+│   │   ├── page.tsx         ★ Server — fetches posts + funnel metadata
+│   │   ├── SocialHub.tsx    ★ Client — FunnelCard → StageSection → SocialPostCard
+│   │   ├── PlatformPreview.tsx ★ Client — phone mockups + ImageSlot + carousel swipe
 │   │   └── affiliate-links/
-│   │       ├── page.tsx         ← Affiliate link library server page
-│   │       └── AffiliateLinkManager.tsx ← CRUD client component
+│   │       ├── page.tsx
+│   │       └── AffiliateLinkManager.tsx
 │   └── api/
 │       ├── auth/route.ts            ← POST — validates ADMIN_PASSWORD, sets cookie
 │       ├── logout/route.ts          ← GET — clears cookie
 │       ├── trigger-generate/route.ts← calls generateDraftPost() directly
 │       ├── posts/[slug]/route.ts    ← PATCH (approve→fires generateSocialBatch) + DELETE
+│       ├── cron/social-phases/route.ts ← GET — advances social funnel phases on schedule
 │       ├── social/
 │       │   ├── [id]/route.ts        ← PATCH: approve / reject / regenerate
-│       │   ├── [id]/image/route.ts  ★ POST: upload image → Supabase Storage social-images bucket
-│       │   │                           DELETE: remove URL from image_urls array
-│       │   └── generate/route.ts   ★ POST { slug } — manually re-trigger social generation
+│       │   ├── [id]/image/route.ts  ← POST upload / DELETE remove
+│       │   └── generate/route.ts   ← POST { slug } re-trigger generation
 │       └── affiliate-links/
-│           ├── route.ts             ← GET all / POST new
-│           └── [id]/route.ts        ← PATCH (toggle active) / DELETE
+│           ├── route.ts
+│           └── [id]/route.ts
 ├── lib/
 │   ├── supabase-server.ts   ← supabaseAdmin (service-role key)
 │   ├── generate-post.ts     ← 36-topic bank, Supabase dedup, Claude API call
-│   └── generate-social.ts   ★ Generation engine: generateSocialBatch() + regenerateSocialPost()
-│                               SOCIAL_SYSTEM: visual director section (4 styles: UGC/lifestyle/flat-lay/editorial)
-│                               PLATFORM_AR: per-platform aspect ratio map → included in every image_prompt
-│                               STAGE_MAX_TOKENS: awareness=4k, education/engagement/conversion=8k
+│   └── generate-social.ts   ★ Engine: generateSocialBatch() + regenerateSocialPost()
 ├── middleware.ts            ← Cookie auth guard
 └── .env.local               ← NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
                                 ADMIN_PASSWORD, ANTHROPIC_API_KEY
@@ -222,6 +233,7 @@ portfolio-admin/
 [Admin: click "Approve"]
   → PATCH /api/posts/[slug] { action: 'approve' }
       → Supabase update: status='published', published_at=now()
+      → generateSocialBatch(post) fired (non-blocking, ~60–90s)
   → Within 60s: appears on /journal + homepage JournalTeaser
 
 [GitHub Actions: daily 9AM UTC]
@@ -234,15 +246,13 @@ portfolio-admin/
 36 topics across 4 categories: **Databases** (9) · **AI** (9) · **Engineering** (9) · **Content** (9)  
 Deduplication: `topic_prompt` column in `posts` table — used prompts are never repeated until all 36 are exhausted.
 
-### Key rule: always use supabaseAdmin for server reads
-`lib/supabase.ts` (public anon client) is stale/unused. All server-side DB access goes through `lib/supabase-server.ts` (service-role key). This is intentional — the anon key in `.env.local` is the wrong format and would silently fail.
-
 ---
 
-## 4. Nav — Animated Pill (replaced 2026-05-20)
+## 4. Nav — Animated Pill
 
-**File:** `components/ui/navigation-menu.tsx`  
-**Old file:** `components/Nav.tsx` — kept as reference, NOT imported anywhere.
+**Active file:** `components/ui/navigation-menu.tsx` — `export default function AnimatedNav()`  
+**Used on:** all pages (homepage `page.tsx`, `about/page.tsx`, `work/page.tsx`, `contact/page.tsx`)  
+**Old `components/Nav.tsx`** — **deleted 2026-05-21**
 
 ### Links
 ```ts
@@ -254,6 +264,10 @@ Deduplication: `topic_prompt` column in `posts` table — used prompts are never
 { type: 'anchor', href: '#contact',  label: 'Contact' }
 ```
 
+### Mobile behaviour
+- `pointer: coarse` → auto-collapses to small circle (top-right, 3rem)
+- Tap to expand; 6 links fit 430px in compact pill sizing
+
 ---
 
 ## 5. Timeline Section — Architecture Detail
@@ -262,15 +276,16 @@ Deduplication: `topic_prompt` column in `posts` table — used prompts are never
 - **progressRef**: `useRef({ value: 0 })` — GSAP scrub:1 tweens `.value` 0→1. Never React state.
 - **Active gate**: IO (rootMargin: 200px) → `canvasActive` → `frameloop={active ? 'always' : 'demand'}`
 - **SplineCamera**: `camera.position.copy(_pos)` — NOT lerp. Scrub:1 is the only smoothing layer.
-- **Mobile**: `window.matchMedia('(max-width: 767px)')` → `<MobileTimeline>` (no canvas)
+- **Mobile**: `window.matchMedia('(max-width: 767px)')` → `return null` (desktop-only experience)
+- **CSS guard**: `#timeline { display: none }` at `max-width: 767px` prevents hydration flash
 
 ---
 
-## 6. Performance — Visibility Gating (2026-05-20)
+## 6. Performance — Visibility Gating
 
 | File | Change |
 |------|--------|
-| `lib/lenis.ts` | `lagSmoothing(500, 33)` |
+| `lib/lenis.ts` | `lagSmoothing(500, 33)` · disabled on `pointer: coarse` (mobile) |
 | `about/BlobBackground.tsx` | IO gates RAF |
 | `ui/shader-background.tsx` | IO + `visibilitychange` gates RAF |
 | `ui/wireframe-dotted-globe.tsx` | AbortController + `requestIdleCallback` |
@@ -329,8 +344,7 @@ STAGGER       = 0.07
 // ✅ Correct — all server components, route handlers, lib functions
 import { supabaseAdmin } from '@/lib/supabase-server'
 
-// ❌ Never use this — lib/supabase.ts is stale, anon key is wrong format
-import { supabase } from '@/lib/supabase'
+// ❌ lib/supabase.ts was deleted — public anon client, wrong key format
 ```
 
 ### JournalTeaser — always pass posts as props
@@ -360,9 +374,6 @@ return () => ctx.revert()
 // ✅ Always import EASE_OUT from lib/motion
 import { EASE_OUT } from '@/lib/motion'
 <motion.span transition={{ duration: 0.75, ease: EASE_OUT }}>
-
-// ✅ Spring variants
-{ type: 'spring' as const, damping: 22, stiffness: 280 }
 ```
 
 ### Page Transitions
@@ -422,169 +433,42 @@ After a blog post is **approved** in the admin dashboard, a 10-day social media 
 ### Platforms
 Instagram · Facebook · TikTok · YouTube
 
-### Content Types Per Platform
-- TikTok: text_post, video_script
-- Instagram: image_caption, carousel, story, reel_script
-- Facebook: text_post (short + long-form)
-- YouTube: community_post, shorts_script
-
-### Virality Scoring (per post)
-5 dimensions: hook · value · emotion · shareability · purchase_intent
-Weighted formula → score 0–10 + 2–3 sentence snippet explanation
-
-### Niches
-home · living · technology · ai · pet-supplies · general
-
-### Affiliate Revenue Goal
-- $3,000/month from affiliate links (Amazon, TikTok Shop, Facebook, Instagram)
-- Following goal: 20K–40K → 100K across all platforms
-
-### Image Prompt System
-Every post gets a **Midjourney/Flux-style image_prompt** generated by Claude acting as visual director.
-
-**4 visual styles** — deployed based on funnel stage:
-- **UGC/Authentic** (AWARENESS): shot-on-iPhone energy, real-home, highest trust signal
-- **Lifestyle/Aspirational** (AWARENESS): real person + benefit, "that could be me"
-- **Flat-lay/Product** (EDUCATION + CONVERSION): overhead 90°/45°, product hero, styled surface
-- **Bold Editorial** (ENGAGEMENT): high contrast, strong composition, scroll-stopping
-
-**Prompt structure** (enforced): shot type → subject+setting → lighting → mood → color palette (warm neutrals/earthy) → niche detail → composition note → quality tags → `--ar X:Y`
-
-**Platform AR flags** (auto-included via `PLATFORM_AR` map):
-- Instagram feed/carousel → `--ar 4:5`
-- Instagram Story/Reel, TikTok, YouTube Shorts → `--ar 9:16`
-- Facebook, YouTube Community → `--ar 16:9`
-
-Carousel slides each get their own prompt: slide 1 = bold cover, middle = educational/proof, last = CTA visual.
-
-### Social Hub UI — Funnel-Grouped View
-Posts are grouped by funnel (blog post), not by platform tab. Layout:
-```
-▼ ● [Blog Post Title]              niche · May 21 → May 31   18 pending
-  [ All 18 ] [ Instagram 6 ] [ TikTok 5 ] [ Facebook 4 ] [ YouTube 3 ]
-  ▼ AWARENESS  Days 1–2  ·  6
-      Day 1 · TikTok — Text Post     [📝 Content] [📱 Preview]
-      ...
-  ▼ EDUCATION  Days 3–4  ·  4
-  ▼ ENGAGEMENT Days 5–7  ·  5
-  ▼ CONVERSION Days 8–10 ·  3
-```
-- Funnels sorted newest first; collapsible
-- Platform filter pills per funnel (hide zero-count platforms)
-- Stage sections color-coded, collapsible, show day range + count
-- Each post card: Content tab (hook/caption/slides/script/virality) + Preview tab (phone mockup)
-
-### Platform Preview Mockups
-Phone frame mockups in `PlatformPreview.tsx` — accurate to platform specs:
-- **TikTok** — dark 9:16, right sidebar icons, bottom overlay with handle/caption/sound
-- **Instagram Feed** — light, gradient avatar ring, 4:5 image, action bar, carousel swipe
-- **Instagram Story/Reel** — dark 9:16, progress bars, send message bar
-- **Facebook** — light card, 16:9 image, reaction bar, actions
-- **YouTube Community** — dark, 16:9 image, Subscribe button, like/reply
-- **YouTube Shorts** — dark 9:16, progress bar, right actions, follow button
-
-**Carousel swipe**: arrows inside phone + slide counter above + dot indicator. Each slide shows its own headline, body text, and image prompt.
-
-### Image Upload
-- User uploads image per post → `POST /api/social/[id]/image` → stored in Supabase Storage bucket `social-images` → public URL saved to `social_posts.image_urls[]`
-- Preview tab's ImageSlot shows uploaded photo; "Change" / "Remove image" controls
-- `DELETE /api/social/[id]/image` removes URL from array
-
-### Manual Re-trigger
-If generation fails (e.g. schema not migrated): **History page → ⟳ Social button** on any published post → `POST /api/social/generate { slug }` → fires `generateSocialBatch()` again.
-
-### Key Files (admin app)
-```
-portfolio-admin/
-├── lib/
-│   └── generate-social.ts      ★ Engine: generateSocialBatch() + regenerateSocialPost()
-│                                   SOCIAL_SYSTEM (cached), STAGE_CONFIG, PLATFORM_AR, STAGE_MAX_TOKENS
-├── app/
-│   ├── history/
-│   │   └── TriggerSocialButton.tsx  ★ ⟳ Social re-trigger button
-│   ├── social/
-│   │   ├── page.tsx             ← Server: fetches posts + funnels, exports SocialPost + FunnelMeta types
-│   │   ├── SocialHub.tsx        ← Client: FunnelCard → StageSection → SocialPostCard
-│   │   ├── PlatformPreview.tsx  ← Client: phone mockups + ImageSlot + carousel swipe
-│   │   └── affiliate-links/
-│   │       ├── page.tsx
-│   │       └── AffiliateLinkManager.tsx
-│   └── api/
-│       ├── social/[id]/route.ts         ← PATCH: approve / reject / regenerate
-│       ├── social/[id]/image/route.ts   ← POST upload / DELETE remove
-│       ├── social/generate/route.ts     ← POST { slug } re-trigger generation
-│       └── affiliate-links/
-│           ├── route.ts
-│           └── [id]/route.ts
-```
-
-### Supabase Tables
-```
-topic_funnels     — one per blog post · tracks 10-day cycle · status: active/completed/paused
-social_posts      — every content piece · columns: hook, caption, hashtags, cta, slide_content,
-                    script, shot_list, is_personal_video, image_prompt, image_urls,
-                    virality_score, virality_breakdown, virality_snippet, status, edit_request
-affiliate_links   — link library · Claude auto-matches by niche + keywords
-content_schedule  — calendar source of truth (powers Phase 4 calendar view)
-posts.niche       — 'home'|'living'|'technology'|'ai'|'pet-supplies'|'general'
-storage.buckets   — 'social-images' (public) for uploaded post images
-```
-
-### Phased Generation (2026-05-21)
-Content is now generated in 3 phases instead of all at once:
+### Phased Generation
 - **Phase 1** (on approval): awareness (Haiku) + education (Sonnet) → Days 1–4
 - **Phase 2** (cron day 3): engagement (Sonnet) → Days 5–7
 - **Phase 3** (cron day 6): conversion (Sonnet) → Days 8–10
 
 Cron: GitHub Actions `social-phases.yml` → 10AM UTC daily → `GET /api/cron/social-phases`  
-Manual advance: `POST /api/social/generate { funnelId, phase: 2 }` or `{ funnelId, phase: 3 }`  
-Full re-gen: `POST /api/social/generate { slug }` (all 3 phases at once)
+Full re-gen: `POST /api/social/generate { slug }` (all 3 phases at once)  
+Cost: ~$0.30–0.65/funnel
 
-Cost: ~$0.30–0.65/funnel (vs $1.00 before). Savings compound when funnels are cancelled early.
+### Image Prompt System
+**4 visual styles** — deployed based on funnel stage:
+- **UGC/Authentic** (AWARENESS): shot-on-iPhone energy, real-home
+- **Lifestyle/Aspirational** (AWARENESS): real person + benefit
+- **Flat-lay/Product** (EDUCATION + CONVERSION): overhead 90°/45°, product hero
+- **Bold Editorial** (ENGAGEMENT): high contrast, scroll-stopping
 
-### Known Issues / Fixes Applied
-| Issue | Fix |
-|-------|-----|
-| Awareness generating 0 posts | `STAGE_MAX_TOKENS` awareness was 4k → truncated JSON → silent `[]`. Fixed to 6k |
-| `image_prompt`/`video_prompt`/`image_urls` columns missing → Social Hub error | Run migration SQL in Supabase (see migrations/) |
-| `/funnels` crash: event handlers in Server Component | Extracted `FunnelCard.tsx` as `'use client'` |
-| Generation fire-and-forget → no UI feedback | Check server console logs; use ⟳ Social to retry |
+Platform AR flags auto-included: `--ar 4:5` (Instagram feed) · `--ar 9:16` (Stories/TikTok/Shorts) · `--ar 16:9` (Facebook/YouTube)
 
-### Approval Flow
+### Supabase Tables
 ```
-Admin approves blog post
-  → PATCH /api/posts/[slug] { action: 'approve' }
-      → post published to Supabase
-      → generateSocialBatch(post) fired (non-blocking, ~60–90s)
-          → 4 Claude calls (one per stage, SOCIAL_SYSTEM cached)
-          → saves to topic_funnels + social_posts + content_schedule
-  → Posts appear at /social grouped by funnel → stage → posts
-  → Per post: Preview tab (phone mockup + image upload) | Content tab (full copy)
-  → Approve / Request Edit / Reject each post
-
-If generation fails → History page → ⟳ Social button on the published post
+topic_funnels     — one per blog post · tracks 10-day cycle
+social_posts      — every content piece · hook, caption, hashtags, cta, slide_content,
+                    script, shot_list, image_prompt, image_urls, virality_score, status
+affiliate_links   — link library · Claude auto-matches by niche + keywords
+content_schedule  — calendar source of truth (Phase 4)
+posts.niche       — 'home'|'living'|'technology'|'ai'|'pet-supplies'|'general'
+storage.buckets   — 'social-images' (public)
 ```
 
-### Content Generation Cost
-~$0.18 per blog post funnel · ~$4.60/month for 20 posts + 500 social pieces · Higgsfield AI videos ~$20–50/month
-
----
-
-## 12. Known Issues / Watch-outs
-
-| Issue | Fix / Status |
-|-------|-------------|
-| `public/fonts/fraunces.json` is a placeholder (helvetiker) | Replace with real Fraunces JSON → correct GlassMark glyphs |
-| `public/projects/*.jpg` — ✅ all 7 images present | artmgmt, research-agent, rag-builder, portfolio-3d, envera-dataops, covid-analysis, nashville-sql |
-| Social links in `Contact.tsx` + `Footer.tsx` — GitHub + LinkedIn live | Twitter, Calendly still placeholder |
-| `.next/` folder corrupts on Windows (OneDrive syncing) | Run `rmdir /s /q .next` then `npm run dev` to fix |
-| `lib/supabase.ts` is stale — public anon client, never import it | All reads/writes use `lib/supabase-server.ts` (supabaseAdmin) |
-| `components/journal/data/posts.ts` is stale — static seed data | No longer imported anywhere — safe to delete |
-| `components/Nav.tsx` is stale — superseded by `ui/navigation-menu.tsx` | Not imported anywhere — kept for reference only |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` in portfolio `.env.local` is wrong format | Doesn't matter — journal reads use supabaseAdmin now |
-| `animated-shader-hero.tsx` has 1 pre-existing TS error | Unrelated to project — ignore |
-| Mobile — "1 Issue" badge still showing in dev overlay | Isolated to one section (per-section ErrorBoundaries in place). Click badge to see which component. Likely a WebGL/GSAP edge case. |
-| Mobile — hero bottom CTA partially cut off | Under active refinement (§15) |
+### Key Admin Files
+```
+portfolio-admin/lib/generate-social.ts  ← Engine
+portfolio-admin/app/social/SocialHub.tsx ← Funnel accordion UI
+portfolio-admin/app/social/PlatformPreview.tsx ← Phone mockups
+portfolio-admin/app/api/social/generate/route.ts ← Re-trigger endpoint
+```
 
 ---
 
@@ -600,51 +484,53 @@ create table posts (
   year         int,
   reading_time int,
   tags         text[]      default '{}',
-  topic_prompt text,       -- ★ added 2026-05-21: archived prompt used for generation (dedup)
+  topic_prompt text,       -- dedup: archived prompt used for generation
+  niche        text,       -- 'home'|'living'|'technology'|'ai'|'pet-supplies'|'general'
   published_at timestamptz,
-  status       text        not null default 'draft',  -- 'draft' | 'published' | 'rejected'
+  status       text        not null default 'draft',
   created_at   timestamptz default now()
 );
--- RLS: anyone can SELECT where status='published'; all writes via service role
 ```
 
 ---
 
-## 12. What to Build Next (priority order)
+## 12. Known Issues / Watch-outs
 
-### 🔜 Continue mobile polish (§15 has full context)
-1. **Identify "1 Issue"** — open dev overlay, check which component is erroring on mobile
-2. **Hero bottom CTA** — verify buttons fully visible, not cut off on 430px
-3. **About / Contact / ManifestoBlock** — verify padding + layout on mobile
-4. **375px test** — narrow iPhone SE viewport
-
-### 🔜 After mobile — Deploy
-5. **Create GitHub repos** — go to github.com/new:
-   - `portfolio` (public)
-   - `portfolio-admin` (**private**)
-   - Then tell Claude the URLs → runs `git remote add` + `git push`
-
-6. **Run DB migrations** in Supabase SQL editor (both in one paste — see social-media-system memory)
-
-7. **Deploy to Vercel**:
-   - `portfolio/` → Vercel → get URL → set `PORTFOLIO_URL` in GitHub secrets
-   - `portfolio-admin/` → Vercel → get URL → set `ADMIN_URL` in GitHub secrets
-   - Set all env vars in Vercel dashboard for both apps
-   - Set GitHub secrets: `PORTFOLIO_URL`, `ADMIN_URL`, `CRON_SECRET`
-
-### ⏸️ On hold
-8. **Social + contact links** — Twitter, Calendly hrefs in `Contact.tsx` + `Footer.tsx`
-9. **Social content calendar** — Phase 4 (calendar view using `content_schedule` table)
-10. **Social API auto-posting** — needs platform developer accounts
-
-### 🟢 Lower priority
-11. Fraunces typeface JSON (`public/fonts/fraunces.json`)
-12. OG image (`app/opengraph-image.tsx`)
-13. Vercel Analytics
+| Issue | Status |
+|-------|--------|
+| `.next/` folder corrupts on Windows (OneDrive syncing) | Run `rmdir /s /q .next` then `npm run dev` |
+| `animated-shader-hero.tsx` has 1 pre-existing TS error | Unrelated — ignore |
+| Social links — Twitter, Calendly in `Contact.tsx` + `Footer.tsx` | Still `#` placeholders |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` in portfolio `.env.local` is wrong format | Doesn't matter — all reads use supabaseAdmin |
+| Mobile — sub-pages (/about, /work, /contact routes) spacing not yet audited | Next mobile session |
+| GitHub Actions secrets not yet set | On hold — set after Vercel URLs confirmed stable |
 
 ---
 
-## 13. Design Rules (never break)
+## 13. What to Build Next (priority order)
+
+### 🔴 Immediate
+1. **GitHub Actions secrets** — set `PORTFOLIO_URL`, `ADMIN_URL`, `CRON_SECRET` at  
+   github.com/evanderpool/portfolio/settings/secrets/actions  
+   (daily blog cron + social phases cron won't fire until this is done)
+
+### 🟡 Next session — Mobile sub-pages
+2. **Audit /about, /work, /contact routes on mobile** — AnimatedNav now used on all three;  
+   check layout, spacing, and padding on 390px + 430px screens
+
+### 🟡 Polish
+3. **Social links** — add real Twitter and Calendly hrefs to `Contact.tsx` + `Footer.tsx`
+4. **OG image** — `app/opengraph-image.tsx` for link previews
+5. **Custom domain** — set in Vercel dashboard once you have a domain
+
+### 🟢 Ongoing / Lower priority
+6. **Social content calendar** — Phase 4 (calendar view using `content_schedule` table)
+7. **Social API auto-posting** — needs Instagram/TikTok/Facebook/YouTube developer accounts
+8. **Vercel Analytics** — one-line add to `layout.tsx`
+
+---
+
+## 14. Design Rules (never break)
 
 | Rule | Reason |
 |------|--------|
@@ -663,10 +549,11 @@ create table posts (
 | All raw WebGL loops gated by `IntersectionObserver` | GPU continues at 60fps otherwise |
 | **Always use supabaseAdmin for server-side reads** | Anon key is wrong format — would silently return [] |
 | **JournalTeaser receives posts as prop** | Component is 'use client' — cannot fetch server-side |
+| **AnimatedNav on every page** | `components/Nav.tsx` deleted — do not recreate it |
 
 ---
 
-## 14. Running the Project
+## 15. Running the Project
 
 ```cmd
 :: Portfolio (Terminal 1)
@@ -683,40 +570,45 @@ cd /d "C:\Users\Erick\Desktop\Portfolio WEbsite 2\portfolio" && rmdir /s /q .nex
 
 ---
 
-## 15. Mobile Fixes — Session 2026-05-21
+## 16. Mobile — Architecture & Fixes (2026-05-21)
 
 ### Restore Point
-```
-git tag: pre-mobile-fix  →  commit f389ce6
-```
-To roll back everything: `git reset --hard pre-mobile-fix`
+`git tag: pre-mobile-fix` → commit `f389ce6`
 
-### What Was Fixed (7 commits, all on master)
-
-| Commit | File(s) | Fix |
-|--------|---------|-----|
-| `9226181` | `app/layout.tsx` + new `components/ErrorBoundary.tsx` | Added `ErrorBoundary` class component. Wraps entire layout (outer) and `{children}` (inner). Prevents any single component crash from killing the whole page. |
-| `a2000a8` | `components/Loader.tsx` | `await document.fonts.ready` had no timeout — could hang forever on mobile. Added `Promise.race` with 3s fallback so loader always completes. |
-| `95fc7e6` | `lib/lenis.ts` | Lenis smooth scroll intercepted all touch events on mobile, making the page impossible to scroll. Now gates off on `pointer: coarse` (touch devices) and lets native OS scroll take over. ScrollTrigger.refresh() still fires on mobile. |
-| `5d2d0b2` | `app/page.tsx`, `components/sections/Hero.tsx`, `app/layout.tsx` | (a) Each section wrapped in its own `ErrorBoundary` in page.tsx so one crash doesn't hide all content. (b) `linesRef.current!` null guard in Hero GSAP effect. (c) `export const viewport: Viewport` added with `viewportFit: 'cover'` for Dynamic Island. |
-| `87d943f` | `components/timeline/MobileTimeline.tsx`, `components/ui/navigation-menu.tsx` | (a) MobileTimeline `whileInView` → `animate` with stagger (whileInView never fires when component mounts into viewport). (b) Nav auto-collapses on touch, compact pill sizing so 6 links fit 430px. |
-| `1bf4b34` | `components/timeline/MobileTimeline.tsx`, `components/ui/navigation-menu.tsx`, `components/sections/Hero.tsx` | (a) Nav hamburger positioned top-right on mobile. (b) SCROLL indicator hidden on mobile (`hidden sm:flex`). (c) Hero bottom padding increased. |
-| `f52424b` | `components/projects/ProjectCard.tsx`, `components/timeline/TimelineSection.tsx`, `components/sections/Hero.tsx`, `app/globals.css` | (a) ProjectCard: `imgRef` + `useEffect` to catch already-loaded images; `loading=eager`; `onError` hides broken img. (b) TimelineSection returns `null` on mobile (Journey is desktop-only). (c) Hero: `flex-col` without `justify-between` on mobile — CTA sits directly below headline with `mt-8`; desktop uses `sm:mt-auto`. (d) globals.css: `env(safe-area-inset-left/right)` on body. |
-
-### Mobile Architecture Decisions
+### Mobile Decisions
 
 | Decision | Rationale |
 |----------|-----------|
 | **Lenis disabled on `pointer: coarse`** | Native scroll is better on mobile; Lenis fights OS momentum |
-| **ErrorBoundary at two levels** | Outer catches shell crashes (Loader/Cursor/Providers); inner catches page content crashes |
-| **Per-section ErrorBoundaries in page.tsx** | Isolates crashes — one bad section doesn't hide the rest |
-| **Journey section hidden on mobile** | The cinematic 3D spline camera is a desktop-only experience. No degraded fallback. |
-| **Nav auto-collapse on touch** | 6 links × gap = ~470px, overflows 430px. Circle + tap-to-expand is cleaner. |
-| **`loading="eager"` on project covers** | `loading="lazy"` caused onLoad race on fast local servers; eager + `img.complete` check fixes it |
+| **ErrorBoundary at two levels** | Outer catches shell crashes; inner per-section so one bad section doesn't hide the rest |
+| **Journey/Timeline hidden on mobile** | 3D spline camera is desktop-only. CSS `display:none` + JS `return null` (CSS prevents hydration flash) |
+| **Hero: `min-height: auto` on mobile** | Removes 100dvh stretch; content is compact and stacked |
+| **Hero horizontal padding: `clamp(28px, 7vw, 80px)`** | 28px minimum edge buffer (was 20px) |
+| **Contact: `gap-6 sm:gap-10`** | Tighter element spacing on mobile |
+| **Nav auto-collapse on touch** | 6 links × gap overflows 430px; circle + tap-to-expand is cleaner |
+| **`loading="eager"` on project covers** | `loading="lazy"` caused onLoad race; eager + `img.complete` check fixes it |
 | **`viewport-fit: cover`** | Opts into Dynamic Island / notch safe area on iPhone 14 Pro Max |
 
-### Remaining Mobile Tasks (next session)
-- Identify and fix the "1 Issue" error still showing in dev overlay (click it to see which component)
-- Check About, Contact, ManifestoBlock sections on mobile for layout/padding issues
-- Test on 375px (iPhone SE) — narrow edge case
-- Once mobile looks good → deploy to Vercel
+### Key Mobile CSS (globals.css)
+```css
+/* Hero compact on mobile */
+@media (max-width: 639px) {
+  #hero, #hero .hero-content { min-height: auto !important; }
+}
+
+/* Journey hidden on mobile (CSS + JS double-guard) */
+@media (max-width: 767px) {
+  #timeline { display: none !important; }
+}
+
+/* Contact tighter on mobile */
+@media (max-width: 639px) {
+  #contact { min-height: auto !important; padding-top: 72px !important; padding-bottom: 72px !important; }
+  #contact .contact-content { gap: 1.25rem !important; }
+}
+
+/* Projects grid */
+@media (max-width: 767px) {
+  #projects .grid > * { grid-column: 1 / -1 !important; }
+}
+```

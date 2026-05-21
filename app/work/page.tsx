@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Nav             from '@/components/Nav'
+import AnimatedNav     from '@/components/ui/navigation-menu'
 import ProjectsSection from '@/components/projects/ProjectsSection'
 import WorksHero       from '@/components/projects/WorksHero'
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function WorkPage() {
   return (
     <main>
-      <Nav />
+      <AnimatedNav />
       <WorksHero />
       <ProjectsSection />
     </main>

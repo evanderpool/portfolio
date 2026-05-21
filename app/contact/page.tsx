@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Nav     from '@/components/Nav'
+import AnimatedNav from '@/components/ui/navigation-menu'
 import Contact from '@/components/sections/Contact'
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main>
-      <Nav />
+      <AnimatedNav />
       <Contact />
     </main>
   )
