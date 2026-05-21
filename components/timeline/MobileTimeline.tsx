@@ -47,7 +47,7 @@ export default function MobileTimeline() {
             key={m.year}
             initial={reduced ? false : { opacity: 0, y: 40 }}
             whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px 0px' }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.8, ease: EASE_OUT }}
             style={{
               display: 'flex',

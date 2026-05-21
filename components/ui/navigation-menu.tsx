@@ -65,6 +65,7 @@ export default function AnimatedNav() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [tappedOpen,  setTappedOpen]  = useState(false)
   const [active,      setActive]      = useState('hero')
+  const [isTouch,     setIsTouch]     = useState(false)
 
   // Stale-closure-safe refs for the scroll handler
   const isCollapsedRef = useRef(false)
@@ -78,6 +79,15 @@ export default function AnimatedNav() {
 
   // Keep ref in sync with state
   useEffect(() => { isCollapsedRef.current = isCollapsed }, [isCollapsed])
+
+  // On touch devices: auto-collapse immediately so the pill never overflows
+  // the narrow viewport. The user taps the hamburger circle to expand.
+  useEffect(() => {
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      setIsTouch(true)
+      setIsCollapsed(true)
+    }
+  }, [])
 
   // ── Scroll-driven collapse ─────────────────────────────────────────────────
   useMotionValueEvent(scrollY, 'change', (y) => {
@@ -187,8 +197,8 @@ export default function AnimatedNav() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '2rem',
-                padding: '0 1.5rem',
+                gap: isTouch ? '0.5rem' : '2rem',
+                padding: isTouch ? '0 0.75rem' : '0 1.5rem',
                 whiteSpace: 'nowrap',
               }}
             >
@@ -196,7 +206,10 @@ export default function AnimatedNav() {
               <TransitionLink
                 href="/"
                 data-cursor="hover"
-                className="font-display italic text-xl leading-none select-none flex-shrink-0"
+                className={cn(
+                  'font-display italic leading-none select-none flex-shrink-0',
+                  isTouch ? 'text-base' : 'text-xl'
+                )}
                 style={{ color: 'var(--terracotta-500)', textDecoration: 'none' }}
                 onClick={() => setTappedOpen(false)}
               >
@@ -204,11 +217,15 @@ export default function AnimatedNav() {
               </TransitionLink>
 
               {/* Nav links */}
-              <ul className="flex items-center gap-6 sm:gap-8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              <ul
+                className={cn('flex items-center', isTouch ? 'gap-2' : 'gap-6 sm:gap-8')}
+                style={{ listStyle: 'none', margin: 0, padding: 0 }}
+              >
                 {links.map((l) => {
                   const active_ = isActive(l)
                   const sharedClass = cn(
-                    'font-sans text-sm tracking-tight transition-colors duration-200 relative group',
+                    'font-sans tracking-tight transition-colors duration-200 relative group',
+                    isTouch ? 'text-xs' : 'text-sm',
                     'bg-transparent border-none p-0'
                   )
                   const linkStyle: React.CSSProperties = {
