@@ -18,7 +18,12 @@ export default function Loader() {
     }
 
     const run = async () => {
-      await document.fonts.ready
+      // Race document.fonts.ready against a 3-second timeout so the loader
+      // never hangs indefinitely on mobile or when fonts are slow/stalled.
+      await Promise.race([
+        document.fonts.ready,
+        new Promise<void>((resolve) => setTimeout(resolve, 3000)),
+      ])
 
       if (getPrefersReducedMotion()) {
         sessionStorage.setItem('ev-loaded', '1')
