@@ -49,12 +49,14 @@
 | **Awareness token limit fix (4k → 6k, was silently failing)** | ✅ Done | 2026-05-21 |
 | **DB migrations: image_prompt, video_prompt, image_urls, generation_phase cols** | ✅ Done | 2026-05-21 |
 | **Version control: git init portfolio-admin, full commits on both repos** | ✅ Done | 2026-05-21 |
+| **Mobile rendering — full fix pass (7 commits)** | ✅ Done | 2026-05-21 |
 | **GitHub remotes — create repos + push** | ⏸️ Todo — user creates repos on github.com | — |
 | **Deploy portfolio to Vercel** | ⏸️ Todo | — |
 | **Deploy portfolio-admin to Vercel (private)** | ⏸️ Todo | — |
+| **Mobile polish — continued refinement** | ⏸️ In progress — see §15 | — |
 | **Social content calendar — Phase 4** | ⏸️ Todo | — |
 | **Social API auto-posting (Instagram/Facebook/TikTok/YouTube)** | ⏸️ Todo — needs platform API setup | — |
-| Social links (GitHub, LinkedIn, Twitter, Calendly) | ⏸️ Todo | — |
+| Social links (GitHub, LinkedIn, Twitter, Calendly) | ✅ Done (GitHub + LinkedIn live) | 2026-05-21 |
 | Fraunces typeface JSON for GlassMark | ⏸️ Todo | — |
 | OG image | ⏸️ Todo | — |
 
@@ -573,14 +575,16 @@ If generation fails → History page → ⟳ Social button on the published post
 | Issue | Fix / Status |
 |-------|-------------|
 | `public/fonts/fraunces.json` is a placeholder (helvetiker) | Replace with real Fraunces JSON → correct GlassMark glyphs |
-| `public/projects/*.jpg` — all 404 | Waiting on Erick for screenshots |
-| Social links in `Contact.tsx` + `Footer.tsx` are placeholders | Update with real GitHub, LinkedIn, Twitter, Calendly |
+| `public/projects/*.jpg` — ✅ all 7 images present | artmgmt, research-agent, rag-builder, portfolio-3d, envera-dataops, covid-analysis, nashville-sql |
+| Social links in `Contact.tsx` + `Footer.tsx` — GitHub + LinkedIn live | Twitter, Calendly still placeholder |
 | `.next/` folder corrupts on Windows (OneDrive syncing) | Run `rmdir /s /q .next` then `npm run dev` to fix |
 | `lib/supabase.ts` is stale — public anon client, never import it | All reads/writes use `lib/supabase-server.ts` (supabaseAdmin) |
 | `components/journal/data/posts.ts` is stale — static seed data | No longer imported anywhere — safe to delete |
 | `components/Nav.tsx` is stale — superseded by `ui/navigation-menu.tsx` | Not imported anywhere — kept for reference only |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` in portfolio `.env.local` is wrong format | Doesn't matter — journal reads use supabaseAdmin now |
 | `animated-shader-hero.tsx` has 1 pre-existing TS error | Unrelated to project — ignore |
+| Mobile — "1 Issue" badge still showing in dev overlay | Isolated to one section (per-section ErrorBoundaries in place). Click badge to see which component. Likely a WebGL/GSAP edge case. |
+| Mobile — hero bottom CTA partially cut off | Under active refinement (§15) |
 
 ---
 
@@ -608,30 +612,35 @@ create table posts (
 
 ## 12. What to Build Next (priority order)
 
-### 🔜 Next session — Deploy
-1. **Create GitHub repos** — go to github.com/new:
+### 🔜 Continue mobile polish (§15 has full context)
+1. **Identify "1 Issue"** — open dev overlay, check which component is erroring on mobile
+2. **Hero bottom CTA** — verify buttons fully visible, not cut off on 430px
+3. **About / Contact / ManifestoBlock** — verify padding + layout on mobile
+4. **375px test** — narrow iPhone SE viewport
+
+### 🔜 After mobile — Deploy
+5. **Create GitHub repos** — go to github.com/new:
    - `portfolio` (public)
    - `portfolio-admin` (**private**)
    - Then tell Claude the URLs → runs `git remote add` + `git push`
 
-2. **Run DB migrations** in Supabase SQL editor (both in one paste — see social-media-system memory)
+6. **Run DB migrations** in Supabase SQL editor (both in one paste — see social-media-system memory)
 
-3. **Deploy to Vercel**:
+7. **Deploy to Vercel**:
    - `portfolio/` → Vercel → get URL → set `PORTFOLIO_URL` in GitHub secrets
    - `portfolio-admin/` → Vercel → get URL → set `ADMIN_URL` in GitHub secrets
    - Set all env vars in Vercel dashboard for both apps
    - Set GitHub secrets: `PORTFOLIO_URL`, `ADMIN_URL`, `CRON_SECRET`
 
 ### ⏸️ On hold
-4. **Social + contact links** — real hrefs in `Contact.tsx` + `Footer.tsx`
-5. **Social content calendar** — Phase 4 (calendar view using `content_schedule` table)
-6. **Social API auto-posting** — needs platform developer accounts
+8. **Social + contact links** — Twitter, Calendly hrefs in `Contact.tsx` + `Footer.tsx`
+9. **Social content calendar** — Phase 4 (calendar view using `content_schedule` table)
+10. **Social API auto-posting** — needs platform developer accounts
 
 ### 🟢 Lower priority
-7. Fraunces typeface JSON (`public/fonts/fraunces.json`)
-8. OG image (`app/opengraph-image.tsx`)
-9. Mobile polish — verify on 375px
-10. Vercel Analytics
+11. Fraunces typeface JSON (`public/fonts/fraunces.json`)
+12. OG image (`app/opengraph-image.tsx`)
+13. Vercel Analytics
 
 ---
 
@@ -661,13 +670,53 @@ create table posts (
 
 ```cmd
 :: Portfolio (Terminal 1)
-cd /d "C:\Users\Erick\OneDrive\Desktop\Portfolio WEbsite 2\portfolio" && npm run dev
+cd /d "C:\Users\Erick\Desktop\Portfolio WEbsite 2\portfolio" && npm run dev
 
 :: Admin (Terminal 2)
-cd /d "C:\Users\Erick\OneDrive\Desktop\Portfolio WEbsite 2\portfolio-admin" && npm run dev
+cd /d "C:\Users\Erick\Desktop\Portfolio WEbsite 2\portfolio-admin" && npm run dev
 ```
 
 If portfolio fails with "Failed to open database" (OneDrive cache corruption):
 ```cmd
-cd /d "C:\Users\Erick\OneDrive\Desktop\Portfolio WEbsite 2\portfolio" && rmdir /s /q .next && npm run dev
+cd /d "C:\Users\Erick\Desktop\Portfolio WEbsite 2\portfolio" && rmdir /s /q .next && npm run dev
 ```
+
+---
+
+## 15. Mobile Fixes — Session 2026-05-21
+
+### Restore Point
+```
+git tag: pre-mobile-fix  →  commit f389ce6
+```
+To roll back everything: `git reset --hard pre-mobile-fix`
+
+### What Was Fixed (7 commits, all on master)
+
+| Commit | File(s) | Fix |
+|--------|---------|-----|
+| `9226181` | `app/layout.tsx` + new `components/ErrorBoundary.tsx` | Added `ErrorBoundary` class component. Wraps entire layout (outer) and `{children}` (inner). Prevents any single component crash from killing the whole page. |
+| `a2000a8` | `components/Loader.tsx` | `await document.fonts.ready` had no timeout — could hang forever on mobile. Added `Promise.race` with 3s fallback so loader always completes. |
+| `95fc7e6` | `lib/lenis.ts` | Lenis smooth scroll intercepted all touch events on mobile, making the page impossible to scroll. Now gates off on `pointer: coarse` (touch devices) and lets native OS scroll take over. ScrollTrigger.refresh() still fires on mobile. |
+| `5d2d0b2` | `app/page.tsx`, `components/sections/Hero.tsx`, `app/layout.tsx` | (a) Each section wrapped in its own `ErrorBoundary` in page.tsx so one crash doesn't hide all content. (b) `linesRef.current!` null guard in Hero GSAP effect. (c) `export const viewport: Viewport` added with `viewportFit: 'cover'` for Dynamic Island. |
+| `87d943f` | `components/timeline/MobileTimeline.tsx`, `components/ui/navigation-menu.tsx` | (a) MobileTimeline `whileInView` → `animate` with stagger (whileInView never fires when component mounts into viewport). (b) Nav auto-collapses on touch, compact pill sizing so 6 links fit 430px. |
+| `1bf4b34` | `components/timeline/MobileTimeline.tsx`, `components/ui/navigation-menu.tsx`, `components/sections/Hero.tsx` | (a) Nav hamburger positioned top-right on mobile. (b) SCROLL indicator hidden on mobile (`hidden sm:flex`). (c) Hero bottom padding increased. |
+| `f52424b` | `components/projects/ProjectCard.tsx`, `components/timeline/TimelineSection.tsx`, `components/sections/Hero.tsx`, `app/globals.css` | (a) ProjectCard: `imgRef` + `useEffect` to catch already-loaded images; `loading=eager`; `onError` hides broken img. (b) TimelineSection returns `null` on mobile (Journey is desktop-only). (c) Hero: `flex-col` without `justify-between` on mobile — CTA sits directly below headline with `mt-8`; desktop uses `sm:mt-auto`. (d) globals.css: `env(safe-area-inset-left/right)` on body. |
+
+### Mobile Architecture Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| **Lenis disabled on `pointer: coarse`** | Native scroll is better on mobile; Lenis fights OS momentum |
+| **ErrorBoundary at two levels** | Outer catches shell crashes (Loader/Cursor/Providers); inner catches page content crashes |
+| **Per-section ErrorBoundaries in page.tsx** | Isolates crashes — one bad section doesn't hide the rest |
+| **Journey section hidden on mobile** | The cinematic 3D spline camera is a desktop-only experience. No degraded fallback. |
+| **Nav auto-collapse on touch** | 6 links × gap = ~470px, overflows 430px. Circle + tap-to-expand is cleaner. |
+| **`loading="eager"` on project covers** | `loading="lazy"` caused onLoad race on fast local servers; eager + `img.complete` check fixes it |
+| **`viewport-fit: cover`** | Opts into Dynamic Island / notch safe area on iPhone 14 Pro Max |
+
+### Remaining Mobile Tasks (next session)
+- Identify and fix the "1 Issue" error still showing in dev overlay (click it to see which component)
+- Check About, Contact, ManifestoBlock sections on mobile for layout/padding issues
+- Test on 375px (iPhone SE) — narrow edge case
+- Once mobile looks good → deploy to Vercel
