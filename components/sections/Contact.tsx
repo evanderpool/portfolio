@@ -71,7 +71,7 @@ export default function Contact() {
       style={{
         background: 'var(--forest-900)',
         minHeight: '100dvh',
-        padding: 'clamp(80px, 12vw, 160px) clamp(24px, 6vw, 80px)',
+        padding: 'clamp(56px, 10vw, 160px) clamp(28px, 6vw, 80px)',
       }}
     >
       {/* Section label */}
@@ -93,7 +93,7 @@ export default function Contact() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center gap-10">
+      <div className="contact-content relative z-10 max-w-3xl mx-auto flex flex-col items-center gap-6 sm:gap-10">
         {/* Headline */}
         <div ref={headlineRef}>
           {HEADLINE.map((line) => (

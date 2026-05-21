@@ -345,6 +345,42 @@ body {
 @utility animation-delay-600 { animation-delay: 0.6s; }
 @utility animation-delay-800 { animation-delay: 0.8s; }
 
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE LAYOUT OVERRIDES
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Hero: no full-viewport stretch on mobile — let content set the height */
+@media (max-width: 639px) {
+  #hero {
+    min-height: auto !important;
+  }
+  #hero .hero-content {
+    min-height: auto !important;
+    padding-bottom: 52px !important;
+  }
+}
+
+/* Journey / Timeline: hidden on mobile.
+   JS guard (return null) already fires after hydration; this CSS rule
+   prevents the full-height flash that appears before JS runs. */
+@media (max-width: 767px) {
+  #timeline {
+    display: none !important;
+  }
+}
+
+/* Contact: tighten vertical spread on mobile */
+@media (max-width: 639px) {
+  #contact {
+    min-height: auto !important;
+    padding-top: 72px !important;
+    padding-bottom: 72px !important;
+  }
+  #contact .contact-content {
+    gap: 1.25rem !important;
+  }
+}
+
 /* Grain overlay — applied via the .grain class */
 .grain::after {
   content: '';

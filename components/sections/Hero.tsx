@@ -117,8 +117,8 @@ export default function Hero() {
 
       {/* Content */}
       <div
-        className="relative z-10 flex flex-col"
-        style={{ minHeight: '100dvh', padding: 'clamp(20px, 6vw, 80px)' }}
+        className="relative z-10 flex flex-col hero-content"
+        style={{ minHeight: '100dvh', padding: 'clamp(20px, 6vw, 80px) clamp(28px, 7vw, 80px)' }}
       >
         {/* Top — headline */}
         <div ref={linesRef} className="mt-16 sm:mt-12 max-w-[620px]">
