@@ -8,6 +8,15 @@ gsap.registerPlugin(ScrollTrigger)
 
 export function useLenis() {
   useEffect(() => {
+    // Touch devices (phones, tablets) use native OS scroll — Lenis intercepts
+    // touch events and completely breaks scrolling on mobile. Skip it entirely
+    // and let ScrollTrigger run on its own via the native scroll position.
+    const isTouch = window.matchMedia('(pointer: coarse)').matches
+    if (isTouch) {
+      requestAnimationFrame(() => ScrollTrigger.refresh())
+      return
+    }
+
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
