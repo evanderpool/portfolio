@@ -44,14 +44,19 @@
 | **Image prompts — Midjourney/Flux style, 4-style visual director** | ✅ Done | 2026-05-21 |
 | **Social hub — funnel-grouped view (accordion by blog post → stage → posts)** | ✅ Done | 2026-05-21 |
 | **Manual re-trigger endpoint + History page ⟳ Social button** | ✅ Done | 2026-05-21 |
+| **Phased social generation (3 phases, Haiku for awareness, cron advancement)** | ✅ Done | 2026-05-21 |
+| **FunnelCard client component (fixes Server Component event handler error)** | ✅ Done | 2026-05-21 |
+| **Awareness token limit fix (4k → 6k, was silently failing)** | ✅ Done | 2026-05-21 |
+| **DB migrations: image_prompt, video_prompt, image_urls, generation_phase cols** | ✅ Done | 2026-05-21 |
+| **Version control: git init portfolio-admin, full commits on both repos** | ✅ Done | 2026-05-21 |
+| **GitHub remotes — create repos + push** | ⏸️ Todo — user creates repos on github.com | — |
+| **Deploy portfolio to Vercel** | ⏸️ Todo | — |
+| **Deploy portfolio-admin to Vercel (private)** | ⏸️ Todo | — |
 | **Social content calendar — Phase 4** | ⏸️ Todo | — |
 | **Social API auto-posting (Instagram/Facebook/TikTok/YouTube)** | ⏸️ Todo — needs platform API setup | — |
-| Blog topic bank → niche-aligned (20/month across 5 niches) | ⏸️ Todo | — |
-| Project cover images (7 files) | ⏳ Waiting on Erick | — |
 | Social links (GitHub, LinkedIn, Twitter, Calendly) | ⏸️ Todo | — |
 | Fraunces typeface JSON for GlassMark | ⏸️ Todo | — |
 | OG image | ⏸️ Todo | — |
-| Deploy (Vercel) + GitHub Actions secrets | ⏸️ Todo | — |
 
 ---
 
@@ -523,12 +528,25 @@ posts.niche       — 'home'|'living'|'technology'|'ai'|'pet-supplies'|'general'
 storage.buckets   — 'social-images' (public) for uploaded post images
 ```
 
+### Phased Generation (2026-05-21)
+Content is now generated in 3 phases instead of all at once:
+- **Phase 1** (on approval): awareness (Haiku) + education (Sonnet) → Days 1–4
+- **Phase 2** (cron day 3): engagement (Sonnet) → Days 5–7
+- **Phase 3** (cron day 6): conversion (Sonnet) → Days 8–10
+
+Cron: GitHub Actions `social-phases.yml` → 10AM UTC daily → `GET /api/cron/social-phases`  
+Manual advance: `POST /api/social/generate { funnelId, phase: 2 }` or `{ funnelId, phase: 3 }`  
+Full re-gen: `POST /api/social/generate { slug }` (all 3 phases at once)
+
+Cost: ~$0.30–0.65/funnel (vs $1.00 before). Savings compound when funnels are cancelled early.
+
 ### Known Issues / Fixes Applied
 | Issue | Fix |
 |-------|-----|
-| Stages hit 4k token limit → JSON parse fail → 0 posts | Fixed: `STAGE_MAX_TOKENS` awareness=4k, others=8k |
-| `image_prompt`/`image_urls` columns missing → silent insert fail | Fix: run schema migration SQL, then use ⟳ Social button |
-| Generation fires on approval but is fire-and-forget (no UI feedback) | Check server console logs; use ⟳ Social to retry |
+| Awareness generating 0 posts | `STAGE_MAX_TOKENS` awareness was 4k → truncated JSON → silent `[]`. Fixed to 6k |
+| `image_prompt`/`video_prompt`/`image_urls` columns missing → Social Hub error | Run migration SQL in Supabase (see migrations/) |
+| `/funnels` crash: event handlers in Server Component | Extracted `FunnelCard.tsx` as `'use client'` |
+| Generation fire-and-forget → no UI feedback | Check server console logs; use ⟳ Social to retry |
 
 ### Approval Flow
 ```
@@ -590,24 +608,30 @@ create table posts (
 
 ## 12. What to Build Next (priority order)
 
-### 🔜 Ready now
-1. **Deploy to Vercel** — `vercel --prod` from `portfolio/` directory
-   - Set all env vars in Vercel dashboard (same as `.env.local`)
-   - Add GitHub secrets: `PORTFOLIO_URL` = live URL, `CRON_SECRET` = same value
-   - GitHub Actions cron fires automatically each morning after deploy
+### 🔜 Next session — Deploy
+1. **Create GitHub repos** — go to github.com/new:
+   - `portfolio` (public)
+   - `portfolio-admin` (**private**)
+   - Then tell Claude the URLs → runs `git remote add` + `git push`
 
-2. **Project data** — fill in `components/projects/data/projects.ts` with real projects
+2. **Run DB migrations** in Supabase SQL editor (both in one paste — see social-media-system memory)
+
+3. **Deploy to Vercel**:
+   - `portfolio/` → Vercel → get URL → set `PORTFOLIO_URL` in GitHub secrets
+   - `portfolio-admin/` → Vercel → get URL → set `ADMIN_URL` in GitHub secrets
+   - Set all env vars in Vercel dashboard for both apps
+   - Set GitHub secrets: `PORTFOLIO_URL`, `ADMIN_URL`, `CRON_SECRET`
 
 ### ⏸️ On hold
-3. **Project cover images** — files at `public/projects/*.jpg`
 4. **Social + contact links** — real hrefs in `Contact.tsx` + `Footer.tsx`
-5. **Cross-posting (CP10)** — TikTok/Instagram/Meta clips from blog posts
+5. **Social content calendar** — Phase 4 (calendar view using `content_schedule` table)
+6. **Social API auto-posting** — needs platform developer accounts
 
 ### 🟢 Lower priority
-6. Fraunces typeface JSON (`public/fonts/fraunces.json`)
-7. OG image (`app/opengraph-image.tsx`)
-8. Mobile polish — verify on 375px
-9. Vercel Analytics
+7. Fraunces typeface JSON (`public/fonts/fraunces.json`)
+8. OG image (`app/opengraph-image.tsx`)
+9. Mobile polish — verify on 375px
+10. Vercel Analytics
 
 ---
 
