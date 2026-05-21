@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
-import Cursor    from '@/components/Cursor'
-import Providers from '@/components/Providers'
+import Cursor        from '@/components/Cursor'
+import Providers     from '@/components/Providers'
 import { PageCurtain } from '@/components/transitions/PageCurtain'
-import Loader    from '@/components/Loader'
-import Footer    from '@/components/Footer'
+import Loader        from '@/components/Loader'
+import Footer        from '@/components/Footer'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -55,13 +56,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} grain`}
     >
       <body>
-        <Loader />
-        <Cursor />
-        <PageCurtain />
-        <Providers>
-          {children}
-          <Footer />
-        </Providers>
+        <ErrorBoundary>
+          <Loader />
+          <Cursor />
+          <PageCurtain />
+          <Providers>
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+            <Footer />
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   )
