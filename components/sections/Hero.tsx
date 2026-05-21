@@ -117,11 +117,11 @@ export default function Hero() {
 
       {/* Content */}
       <div
-        className="relative z-10 flex flex-col justify-between"
-        style={{ minHeight: '100dvh', padding: 'clamp(32px, 6vw, 80px)' }}
+        className="relative z-10 flex flex-col"
+        style={{ minHeight: '100dvh', padding: 'clamp(20px, 6vw, 80px)' }}
       >
         {/* Top — headline */}
-        <div ref={linesRef} className="mt-20 sm:mt-12 max-w-[620px]">
+        <div ref={linesRef} className="mt-16 sm:mt-12 max-w-[620px]">
           {HEADLINE_LINES.map((line) => (
             <div key={line} className="overflow-hidden leading-[0.92]">
               <div
@@ -139,8 +139,9 @@ export default function Hero() {
           ))}
         </div>
 
-        {/* Bottom row — meta + CTA */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 pb-8 sm:pb-4">
+        {/* Bottom row: on mobile sits directly below headline (mt-8);
+            on desktop mt-auto pushes it to the viewport bottom */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mt-8 sm:mt-auto pb-8 sm:pb-4">
           {/* Descriptor */}
           <div ref={metaRef} style={{ opacity: 0 }}>
             <p

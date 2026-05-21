@@ -92,6 +92,16 @@ body {
   color: var(--cream-50);
 }
 
+/* ── Mobile safe-area buffer ──────────────────────────────────────────────
+   Respect iPhone notch / Dynamic Island insets on all fixed/sticky elements.
+   The viewport-fit:cover in layout.tsx opts in; these rules provide the padding. */
+@supports (padding: max(0px)) {
+  body {
+    padding-left:   env(safe-area-inset-left);
+    padding-right:  env(safe-area-inset-right);
+  }
+}
+
 /* Projects grid — collapse to 1-col on mobile, 2-col on tablet */
 @media (max-width: 767px) {
   #projects .grid > * {

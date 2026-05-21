@@ -1,10 +1,22 @@
 'use client'
 import { motion } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 import { TransitionLink } from '@/components/transitions/TransitionLink'
 import { EASE_OUT } from '@/lib/motion'
 import type { Project } from './data/projects'
 
 export function ProjectCard({ project }: { project: Project }) {
+  // Images start at opacity:0 for a fade-in on load. If the image loads
+  // before React attaches the onLoad handler (common on fast local servers
+  // and on mobile), we check img.complete in an effect and flip it manually.
+  const imgRef = useRef<HTMLImageElement>(null)
+  useEffect(() => {
+    const img = imgRef.current
+    if (img && img.complete && img.naturalWidth > 0) {
+      img.style.opacity = '1'
+    }
+  }, [])
+
   return (
     <TransitionLink
       href={`/work/${project.slug}`}
@@ -55,15 +67,15 @@ export function ProjectCard({ project }: { project: Project }) {
           }}
         >
           <img
+            ref={imgRef}
             src={project.cover}
             alt=""
             role="presentation"
             className="w-full h-full object-cover"
             style={{ opacity: 0, transition: 'opacity 0.5s ease' }}
-            loading="lazy"
-            onLoad={(e) => {
-              ;(e.target as HTMLImageElement).style.opacity = '1'
-            }}
+            loading="eager"
+            onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = '1' }}
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
         </div>
 

@@ -73,8 +73,10 @@ export default function TimelineSection() {
     return () => ctx.revert()
   }, [isMobile])
 
+  // Journey section is desktop-only: the cinematic 3D spline camera doesn't
+  // translate to mobile. Hide entirely rather than show a broken fallback.
   if (isMobile) {
-    return <MobileTimeline />
+    return null
   }
 
   return (
