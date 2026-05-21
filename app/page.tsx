@@ -6,8 +6,16 @@ import ProjectsSection from '@/components/projects/ProjectsSection'
 import TimelineSection from '@/components/timeline/TimelineSection'
 import JournalTeaser   from '@/components/JournalTeaser'
 import Contact         from '@/components/sections/Contact'
+import { getPosts }    from '@/lib/journal'
 
-export default function Home() {
+// Revalidate every 60s so newly approved posts appear on the homepage
+export const revalidate = 60
+
+export default async function Home() {
+  // Fetch the 3 most recent published posts for the teaser
+  const allPosts  = await getPosts()
+  const latestThree = allPosts.slice(0, 3)
+
   return (
     <main>
       <AnimatedNav />
@@ -16,7 +24,7 @@ export default function Home() {
       <About />
       <ProjectsSection limit={6} showViewAll />
       <TimelineSection />
-      <JournalTeaser />
+      <JournalTeaser posts={latestThree} />
       <Contact />
     </main>
   )

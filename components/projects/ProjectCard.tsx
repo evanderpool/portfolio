@@ -1,41 +1,31 @@
 'use client'
-import { useCallback } from 'react'
-import { useMagneticTilt } from './hooks/useMagneticTilt'
-import { useHover } from './context/HoverContext'
+import { motion } from 'framer-motion'
+import { TransitionLink } from '@/components/transitions/TransitionLink'
+import { EASE_OUT } from '@/lib/motion'
 import type { Project } from './data/projects'
 
 export function ProjectCard({ project }: { project: Project }) {
-  const tiltRef = useMagneticTilt(10)
-  const { setHovered } = useHover()
-
-  const handleEnter = useCallback(() => {
-    if (!tiltRef.current) return
-    setHovered({
-      rect: tiltRef.current.getBoundingClientRect(),
-      cover: project.cover,
-      accent: project.accent,
-    })
-  }, [project.cover, project.accent, setHovered, tiltRef])
-
-  const handleLeave = useCallback(() => setHovered(null), [setHovered])
-
   return (
-    <div style={{ perspective: '900px', height: '100%' }}>
-      <div
-        ref={tiltRef}
-        data-cursor="hover"
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
+    <TransitionLink
+      href={`/work/${project.slug}`}
+      data-cursor="hover"
+      style={{ display: 'block', height: '100%', textDecoration: 'none' }}
+    >
+      <motion.div
         className="relative group"
+        whileHover={{
+          scale: 1.03,
+          boxShadow: '0 24px 64px rgba(19, 29, 18, 0.13)',
+        }}
+        transition={{ duration: 0.45, ease: EASE_OUT }}
         style={{
-          transformStyle: 'preserve-3d',
-          willChange: 'transform',
           height: '100%',
           minHeight: '340px',
           borderRadius: '16px',
-          background: 'var(--cream-200)',
+          /* clipPath instead of overflow:hidden — preserves scroll/stacking compat */
           clipPath: 'inset(0 round 16px)',
-          transition: 'box-shadow 0.4s ease',
+          background: 'var(--cream-200)',
+          willChange: 'transform',
         }}
       >
         {/* Ghost index number */}
@@ -50,6 +40,7 @@ export function ProjectCard({ project }: { project: Project }) {
             lineHeight: 1,
             letterSpacing: '-0.03em',
             color: 'var(--forest-800)',
+            zIndex: 1,
           }}
         >
           {project.id}
@@ -76,11 +67,8 @@ export function ProjectCard({ project }: { project: Project }) {
           />
         </div>
 
-        {/* Content — lifted in Z for depth parallax */}
-        <div
-          className="p-6 flex flex-col gap-3"
-          style={{ transform: 'translateZ(40px)' }}
-        >
+        {/* Content */}
+        <div className="p-6 flex flex-col gap-3">
           <div
             className="font-mono uppercase"
             style={{ fontSize: '11px', letterSpacing: '0.1em', color: 'var(--forest-400)' }}
@@ -128,15 +116,15 @@ export function ProjectCard({ project }: { project: Project }) {
           </div>
         </div>
 
-        {/* Hover sheen */}
+        {/* Hover sheen — CSS group-hover, zero JS */}
         <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
           style={{
-            background: `radial-gradient(ellipse at 60% 30%, ${project.accent}12 0%, transparent 70%)`,
+            background: `radial-gradient(ellipse at 60% 30%, ${project.accent}14 0%, transparent 70%)`,
           }}
           aria-hidden
         />
-      </div>
-    </div>
+      </motion.div>
+    </TransitionLink>
   )
 }

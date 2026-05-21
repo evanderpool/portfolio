@@ -1,20 +1,20 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import Nav from '@/components/Nav'
-import { TransitionLink } from '@/components/transitions/TransitionLink'
-import { posts } from '@/components/journal/data/posts'
+import { notFound }            from 'next/navigation'
+import AnimatedNav              from '@/components/ui/navigation-menu'
+import { TransitionLink }       from '@/components/transitions/TransitionLink'
+import { getPostBySlug }        from '@/lib/journal'
+import PostBody                 from '@/components/journal/PostBody'
+
+// Revalidate every 60 s — new published content appears without a full rebuild
+export const revalidate = 60
 
 interface Props {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }))
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = posts.find((p) => p.slug === slug)
+  const post = await getPostBySlug(slug)
   if (!post) return { title: 'Not Found' }
   return {
     title: post.title,
@@ -24,12 +24,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function JournalArticlePage({ params }: Props) {
   const { slug } = await params
-  const post = posts.find((p) => p.slug === slug)
+  const post = await getPostBySlug(slug)
   if (!post) notFound()
 
   return (
     <main style={{ background: 'var(--cream-100)', minHeight: '100dvh' }}>
-      <Nav />
+      <AnimatedNav />
 
       {/* Article header */}
       <header
@@ -112,24 +112,29 @@ export default async function JournalArticlePage({ params }: Props) {
         </div>
       </header>
 
-      {/* Article body (placeholder — MDX-ready) */}
+      {/* Article body */}
       <article
         style={{
           padding: 'clamp(48px, 6vw, 80px) clamp(24px, 6vw, 80px)',
           maxWidth: '72ch',
         }}
       >
-        <p
-          className="font-sans"
-          style={{
-            fontSize: '18px',
-            color: 'var(--forest-600)',
-            lineHeight: 1.7,
-            letterSpacing: '-0.01em',
-          }}
-        >
-          Full article coming soon. When MDX support is added, the body content will appear here automatically.
-        </p>
+        {post.content ? (
+          <PostBody content={post.content} />
+        ) : (
+          <p
+            className="font-sans"
+            style={{
+              fontSize: '18px',
+              color: 'var(--forest-600)',
+              lineHeight: 1.7,
+              letterSpacing: '-0.01em',
+              opacity: 0.6,
+            }}
+          >
+            Full article coming soon.
+          </p>
+        )}
       </article>
     </main>
   )

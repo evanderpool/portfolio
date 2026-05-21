@@ -1,0 +1,31 @@
+name: Daily Post Generation
+
+on:
+  schedule:
+    # 9:00 AM UTC every day (adjust to your preferred timezone)
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    # Allows manual trigger from GitHub Actions tab (useful for testing)
+
+jobs:
+  generate:
+    name: Generate draft blog post
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger /api/generate
+        run: |
+          response=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            -X POST "${{ secrets.PORTFOLIO_URL }}/api/generate" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          echo "HTTP status: $response"
+          echo "Response body:"
+          cat /tmp/response.json
+
+          if [ "$response" != "200" ]; then
+            echo "Generation failed with status $response"
+            exit 1
+          fi

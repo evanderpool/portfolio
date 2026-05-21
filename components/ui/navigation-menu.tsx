@@ -19,7 +19,7 @@ type NavLink =
 const links: NavLink[] = [
   { type: 'anchor', href: '#hero',     label: 'Home'    },
   { type: 'anchor', href: '#about',    label: 'About'   },
-  { type: 'route',  href: '/work',     label: 'Work'    },
+  { type: 'anchor', href: '#projects', label: 'Work'    },
   { type: 'anchor', href: '#timeline', label: 'Journey' },
   { type: 'anchor', href: '#journal',  label: 'Journal' },
   { type: 'anchor', href: '#contact',  label: 'Contact' },

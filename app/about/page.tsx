@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
-import Nav          from '@/components/Nav'
-import AboutSection from '@/components/about/AboutSection'
+import Nav           from '@/components/Nav'
+import AboutSection  from '@/components/about/AboutSection'
 import JournalTeaser from '@/components/JournalTeaser'
+import { getPosts }  from '@/lib/journal'
+
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'About',
@@ -26,7 +29,10 @@ const personJsonLd = {
   ],
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const allPosts    = await getPosts()
+  const latestThree = allPosts.slice(0, 3)
+
   return (
     <>
       <script
@@ -36,7 +42,7 @@ export default function AboutPage() {
       <main>
         <Nav />
         <AboutSection />
-        <JournalTeaser />
+        <JournalTeaser posts={latestThree} />
       </main>
     </>
   )

@@ -1,7 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
 
-export const FILTERS = ['ALL', 'ENGINEERING', 'CONTENT', 'DATABASES', 'EXPERIMENTS'] as const
+export const FILTERS = ['ALL', 'ENGINEERING', 'DATABASES'] as const
 export type Filter = (typeof FILTERS)[number]
 
 type Props = {

@@ -3,8 +3,11 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { EASE_OUT } from '@/lib/motion'
 import { TransitionLink } from '@/components/transitions/TransitionLink'
 import { useMagneticTilt } from '@/components/projects/hooks/useMagneticTilt'
-import { posts } from '@/components/journal/data/posts'
 import type { JournalPost } from '@/lib/journal'
+
+interface Props {
+  posts: JournalPost[]
+}
 
 const cardVariants = {
   hidden:  { y: 40, opacity: 0 },
@@ -100,7 +103,7 @@ function JournalCard({ post }: { post: JournalPost }) {
   )
 }
 
-export default function JournalTeaser() {
+export default function JournalTeaser({ posts }: Props) {
   const reduced = useReducedMotion()
 
   return (
@@ -134,18 +137,26 @@ export default function JournalTeaser() {
         Latest writing
       </h2>
 
-      {/* Cards grid */}
-      <motion.div
-        initial={reduced ? false : 'hidden'}
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px 0px' }}
-        transition={{ staggerChildren: 0.12 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-y-0 gap-x-12"
-      >
-        {posts.map((post) => (
-          <JournalCard key={post.slug} post={post} />
-        ))}
-      </motion.div>
+      {posts.length === 0 ? (
+        <p
+          className="font-sans"
+          style={{ fontSize: '16px', color: 'var(--forest-600)', opacity: 0.5 }}
+        >
+          Posts coming soon.
+        </p>
+      ) : (
+        <motion.div
+          initial={reduced ? false : 'hidden'}
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px 0px' }}
+          transition={{ staggerChildren: 0.12 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-y-0 gap-x-12"
+        >
+          {posts.map((post) => (
+            <JournalCard key={post.slug} post={post} />
+          ))}
+        </motion.div>
+      )}
 
       {/* View all */}
       <div style={{ marginTop: '3rem', textAlign: 'center' }}>

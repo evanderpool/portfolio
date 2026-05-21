@@ -1,9 +1,10 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { getPrefersReducedMotion } from '@/lib/motion'
+import ContactModal from './ContactModal'
 
 const ContactScene = dynamic(() => import('./ContactScene'), { ssr: false })
 
@@ -18,6 +19,7 @@ const SOCIALS = [
 ]
 
 export default function Contact() {
+  const [modalOpen, setModalOpen] = useState(false)
   const sectionRef   = useRef<HTMLElement>(null)
   const headlineRef  = useRef<HTMLDivElement>(null)
   const subRef       = useRef<HTMLParagraphElement>(null)
@@ -60,6 +62,8 @@ export default function Contact() {
   }, [])
 
   return (
+    <>
+    <ContactModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     <section
       ref={sectionRef}
       id="contact"
@@ -120,8 +124,9 @@ export default function Contact() {
 
         {/* Contact CTAs — match Hero shiny-cta style */}
         <div ref={cardsRef} className="flex flex-col sm:flex-row gap-4">
-          <a
-            href="mailto:erick.vanderpool2@outlook.com"
+          {/* Opens contact form modal */}
+          <button
+            onClick={() => setModalOpen(true)}
             data-cursor="hover"
             className="shiny-cta"
           >
@@ -132,8 +137,9 @@ export default function Contact() {
               </svg>
               Send an email
             </span>
-          </a>
+          </button>
 
+          {/* Calendly — update href when ready */}
           <a
             href="#"
             data-cursor="hover"
@@ -185,5 +191,6 @@ export default function Contact() {
         © 2025 Erick Vanderpool — Built with Next.js & Three.js
       </div>
     </section>
+    </>
   )
 }

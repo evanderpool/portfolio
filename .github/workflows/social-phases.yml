@@ -1,0 +1,35 @@
+name: Social Phase Advancement
+
+on:
+  schedule:
+    # 10:00 AM UTC every day — runs 1 hour after daily-post.yml
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+    # Allows manual trigger from GitHub Actions tab (useful for testing)
+
+jobs:
+  advance-phases:
+    name: Advance social content phases
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger /api/cron/social-phases
+        run: |
+          response=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            -X GET "${{ secrets.ADMIN_URL }}/api/cron/social-phases" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+
+          echo "HTTP status: $response"
+          echo "Response body:"
+          cat /tmp/response.json
+
+          if [ "$response" != "200" ]; then
+            echo "Social phase advancement failed with status $response"
+            exit 1
+          fi
+
+          # Log how many funnels were advanced
+          phase2=$(cat /tmp/response.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('triggered',{}).get('phase2',[])))" 2>/dev/null || echo "?")
+          phase3=$(cat /tmp/response.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('triggered',{}).get('phase3',[])))" 2>/dev/null || echo "?")
+          echo "Funnels advanced → Phase 2: $phase2 | Phase 3: $phase3"

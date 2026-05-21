@@ -1,8 +1,12 @@
 'use client'
 import { TransitionLink } from '@/components/transitions/TransitionLink'
-import { posts } from './data/posts'
+import type { JournalPost } from '@/lib/journal'
 
-export default function JournalPostList() {
+interface Props {
+  posts: JournalPost[]
+}
+
+export default function JournalPostList({ posts }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       {posts.map((post, i) => (
