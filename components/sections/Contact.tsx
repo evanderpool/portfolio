@@ -13,9 +13,9 @@ gsap.registerPlugin(ScrollTrigger)
 const HEADLINE = ["Let’s build", 'something', 'worth reading.']
 
 const SOCIALS = [
-  { label: 'GitHub',   href: 'https://github.com'   },
-  { label: 'LinkedIn', href: 'https://linkedin.com'  },
-  { label: 'Twitter',  href: 'https://twitter.com'   },
+  { label: 'GitHub',   href: 'https://github.com/evanderpool'  },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/erick-vanderpool/' },
+  // { label: 'Twitter',  href: 'https://twitter.com/...' }, // add when ready
 ]
 
 export default function Contact() {

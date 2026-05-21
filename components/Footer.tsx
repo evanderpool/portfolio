@@ -10,9 +10,9 @@ const QUICK_LINKS = [
 ]
 
 const SOCIALS = [
-  { label: 'GitHub',   href: 'https://github.com/erickvanderpool'  },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/erickvanderpool' },
-  { label: 'Twitter',  href: 'https://twitter.com/erickvanderpool' },
+  { label: 'GitHub',   href: 'https://github.com/evanderpool'  },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/erick-vanderpool/' },
+  // { label: 'Twitter',  href: 'https://twitter.com/...' }, // add when ready
 ]
 
 export default function Footer() {
